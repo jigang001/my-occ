@@ -1,0 +1,12 @@
+{
+  "pages": [
+    "pages/index/main",
+    "pages/record/main"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "油耗记录助手",
+    "navigationBarTextStyle": "black"
+  }
+}
