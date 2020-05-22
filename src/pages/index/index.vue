@@ -57,7 +57,7 @@
       <p class="weui-footer__links">
         <a href="javascript:" class="weui-footer__link" @click="dialogShow">技术支持</a>
       </p>
-      <p class="weui-footer__text">Copyright © 2020 JungKiSong v1.1.0</p>
+      <p class="weui-footer__text">Copyright © 2020 JungKiSong v1.1.1</p>
     </div>
     <halfScreenDialog ref="halfScreenDialog" title="技术支持" @close="dialogClose">
       <div class="my-qrcode">
@@ -172,6 +172,30 @@ export default {
 
   created () {
 
+  },
+
+  onLoad () {
+    const vm = this
+    wx.login({
+      success (res) {
+        console.log(res)
+        if (res.code) {
+          // 发起网络请求
+          vm.$httpWX.get({
+            url: 'https://api.jungkisong.cn/users',
+            data: {
+              code: res.code
+            }
+          }).then(result => {
+            console.log(result)
+          }).catch(err => {
+            console.log(err)
+          })
+        } else {
+          console.log('登录失败！' + res.errMsg)
+        }
+      }
+    })
   },
 
   onShow () {
