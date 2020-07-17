@@ -8,5 +8,10 @@
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "油耗记录助手",
     "navigationBarTextStyle": "black"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于定位效果展示"
+    }
   }
 }

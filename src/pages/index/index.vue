@@ -43,7 +43,7 @@
           </div>
         </div>
         <div class="tbody">
-          <div class="tr" v-for="item in gnyj.result">
+          <div class="tr" v-for="(item, index) in gnyj.result" :key="index">
             <div class="td">{{item['city']}}</div>
             <div class="td">{{item['92h']}}</div>
             <div class="td">{{item['95h']}}</div>
@@ -57,7 +57,7 @@
       <p class="weui-footer__links">
         <a href="javascript:" class="weui-footer__link" @click="dialogShow">技术支持</a>
       </p>
-      <p class="weui-footer__text">Copyright © 2020 JungKiSong v1.1.2</p>
+      <p class="weui-footer__text">Copyright © 2020 XiaoGang v1.1.3</p>
     </div>
     <halfScreenDialog ref="halfScreenDialog" title="技术支持" @close="dialogClose">
       <div class="my-qrcode">
@@ -98,11 +98,67 @@ export default {
       gnyj: { // 国内油价
         date: '',
         result: []
-      }
+      },
+      currentProvince: '' // 所在省份
     }
   },
 
   methods: {
+    showShareMenu () { // 菜单展示分享按钮
+      wx.showShareMenu({
+        withShareTicket: true,
+        menus: ['shareAppMessage', 'shareTimeline']
+      })
+    },
+    userLogin () { // 获取用户信息
+      const vm = this
+      wx.login({
+        success (res) {
+          console.log(res)
+          if (res.code) {
+            // 发起网络请求
+            vm.$httpWX.get({
+              url: 'https://api.jungkisong.cn/myOCC/users',
+              data: {
+                code: res.code
+              }
+            }).then(result => {
+              console.log(result)
+            }).catch(err => {
+              console.log(err)
+            })
+          } else {
+            console.log('登录失败！' + res.errMsg)
+          }
+        }
+      })
+    },
+    getLocation () { // 查询所在省份
+      const vm = this
+      return new Promise((resolve, reject) => {
+        // 获取坐标
+        wx.getLocation({
+          type: 'wgs84',
+          success (res) {
+            const latitude = res.latitude
+            const longitude = res.longitude
+            /* 根据坐标获取地址信息 */
+            vm.$httpWX.get({
+              url: 'https://apis.map.qq.com/ws/geocoder/v1/?location=' + latitude + ',' + longitude + '&key=ZRGBZ-MGAKQ-G7Z5L-GNIX5-64OCQ-XCFUK'
+            }).then(result => {
+              vm.currentProvince = result.result.ad_info.province
+              resolve(vm.currentProvince)
+            }).catch(err => {
+              console.log(err)
+              reject(new Error('err'))
+            })
+          },
+          fail (res) {
+            reject(res)
+          }
+        })
+      })
+    },
     tabClick (index) { // 顶部tab点击
       this.tabActiveIndex = index
     },
@@ -138,22 +194,21 @@ export default {
       } catch (e) { }
     },
     queryGnyj () { // 查询油价
-      let today = formatTime(new Date()).split(' ')[0]
-      if (wx.getStorageSync('gnyj') && wx.getStorageSync('gnyj').date === today) { // 今天是否查询过油价
-        this.gnyj = wx.getStorageSync('gnyj')
-        console.log(this.gnyj)
-      } else {
-        this.$httpWX.post({
-          url: 'https://apis.juhe.cn/gnyj/query?key=7f4439b60c5ce9da399df82485caafa5'
-        }).then(res => {
-          console.log(res)
-          this.gnyj.date = formatTime(new Date()).split(' ')[0]
-          this.gnyj.result = res.result
-          wx.setStorageSync('gnyj', this.gnyj)
-        }).catch(err => {
-          console.log(err)
-        })
-      }
+      return new Promise((resolve, reject) => {
+        let today = formatTime(new Date()).split(' ')[0]
+        if (wx.getStorageSync('gnyj') && wx.getStorageSync('gnyj').date === today) { // 今天是否查询过油价
+          resolve(wx.getStorageSync('gnyj').result)
+        } else {
+          this.$httpWX.post({
+            url: 'https://apis.juhe.cn/gnyj/query?key=7f4439b60c5ce9da399df82485caafa5'
+          }).then(res => {
+            resolve(res.result)
+          }).catch(err => {
+            console.log(err)
+            reject(new Error())
+          })
+        }
+      })
     },
     dialogShow () {
       this.$refs.halfScreenDialog.show()
@@ -170,37 +225,36 @@ export default {
     }
   },
 
-  created () {
-
-  },
+  created () { },
 
   onLoad () {
-    const vm = this
-    wx.login({
-      success (res) {
-        console.log(res)
-        if (res.code) {
-          // 发起网络请求
-          vm.$httpWX.get({
-            url: 'https://api.jungkisong.cn/myOCC/users',
-            data: {
-              code: res.code
-            }
-          }).then(result => {
-            console.log(result)
-          }).catch(err => {
-            console.log(err)
-          })
-        } else {
-          console.log('登录失败！' + res.errMsg)
-        }
-      }
-    })
+    this.showShareMenu()
+    this.userLogin()
   },
 
   onShow () {
     this.getData() // 查询我的记录
-    this.queryGnyj() // 查询油价
+    this.queryGnyj().then((res) => { // 查询油价
+      console.log('查询油价成功')
+      console.log(res)
+      this.gnyj.date = formatTime(new Date()).split(' ')[0]
+      this.gnyj.result = res
+      wx.setStorageSync('gnyj', this.gnyj)
+      this.getLocation().then((province) => { // 获取定位
+        console.log(province)
+        for (let i = 0; i < res.length; i++) {
+          if (province.indexOf(res[i].city) > -1) { // 匹配当前城市
+            let currentData = res[i]
+            this.gnyj.result.splice(i, 1)
+            this.gnyj.result.unshift(currentData) // 将当前城市排到第一位
+            break
+          }
+        }
+        console.log(this.gnyj)
+      }).catch((err) => {
+        console.log(err)
+      })
+    })
   },
 
   onShareAppMessage (res) {
@@ -214,14 +268,22 @@ export default {
     return {
       title: '来测测你爱车的真实油耗',
       path: '/pages/index/main',
-      // 设置转发的图片
       imageUrl: 'https://static-public-1301949451.cos.ap-shanghai.myqcloud.com/my-occ/share.png',
       // 成功的回调
       success: (res) => {},
       // 失败的回调
       fail: (res) => {},
-      // 无论成功与否的回调
+      // 无论成功与否的回调shareAppMessage
       complete: (res) => {}
+    }
+  },
+
+  onShareTimeline (res) {
+    console.log(res)
+    return {
+      title: '来测测你爱车的真实油耗',
+      query: '',
+      imageUrl: 'https://static-public-1301949451.cos.ap-shanghai.myqcloud.com/my-occ/share.png'
     }
   }
 }
