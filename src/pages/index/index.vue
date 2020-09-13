@@ -57,7 +57,7 @@
       <p class="weui-footer__links">
         <a href="javascript:" class="weui-footer__link" @click="dialogShow">技术支持</a>
       </p>
-      <p class="weui-footer__text">Copyright © 2020 XiaoGang v1.1.3</p>
+      <p class="weui-footer__text">Copyright © 2020 XiaoGang v1.1.4</p>
     </div>
     <halfScreenDialog ref="halfScreenDialog" title="技术支持" @close="dialogClose">
       <div class="my-qrcode">

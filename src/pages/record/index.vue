@@ -72,8 +72,8 @@ export default {
       let totalFill = 0 // 总加油量
       let totalCost = 0
       if (this.recordData.length > 0) {
-        let firstKM = Number(this.recordData[0].km)
-        let lastKM = Number(this.recordData[this.recordData.length - 1].km)
+        let firstKM = Number(this.recordData[this.recordData.length - 1].km)
+        let lastKM = Number(this.recordData[0].km)
         totalKm = lastKM - firstKM
         for (let [index, item] of this.recordData.entries()) {
           if (index > 0) {
