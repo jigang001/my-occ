@@ -32,6 +32,9 @@
       <mp-button type="default" size="large" btnClass="mt5" @click="navigateTo('/pages/record/main')">我的记录</mp-button>
     </div>
     <div class="gnyj" v-if="tabActiveIndex === 1">
+      <div class="adContainer">
+        <ad unit-id="adunit-f0dd28c7bb9c94aa" ad-intervals="30"></ad>
+      </div>
       <div class="table">
         <div class="thead">
           <div class="tr">
@@ -57,7 +60,10 @@
       <p class="weui-footer__links">
         <a href="javascript:" class="weui-footer__link" @click="dialogShow">技术支持</a>
       </p>
-      <p class="weui-footer__text">Copyright © 2020 XiaoGang v1.1.4</p>
+      <p class="weui-footer__text">Copyright © 2020 XiaoGang v1.1.5</p>
+      <div class="adContainer" style="margin-top: 10px;">
+        <ad unit-id="adunit-2a91947b8b091dc0" ad-intervals="30"></ad>
+      </div>
     </div>
     <halfScreenDialog ref="halfScreenDialog" title="技术支持" @close="dialogClose">
       <div class="my-qrcode">
@@ -309,7 +315,9 @@ export default {
     bottom: 0;
     left: 0;
     width: 100%;
-    padding-bottom: 10px;
+  }
+  .adContainer{
+    width: 100%;
   }
   .my-qrcode .qrcode{
     display: flex;

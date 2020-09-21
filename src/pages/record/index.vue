@@ -16,9 +16,12 @@
         </div>
       </div>
     </div>
-    <div class="tips">注：记录两次开始计算油耗，每次把油加满计算更准确。</div>
-    <div class="btn-box">
-      <mp-button v-if="recordData.length < 1" type="primary" size="large" @click="navigateTo('/pages/index/main')">没有找到您的加油记录，去加油</mp-button>
+    <div class="tips" v-if="recordData.length < 2">注：记录两次开始计算油耗，每次把油加满计算更准确。</div>
+    <div class="adContainer">
+      <ad unit-id="adunit-a6a2901e630cfbc8" ad-intervals="30"></ad>
+    </div>
+    <div class="btn-box" v-if="recordData.length < 1">
+      <mp-button type="primary" size="large" @click="navigateTo('/pages/index/main')">没有找到您的加油记录，去加油</mp-button>
     </div>
     <div v-for="(item, index) in recordData" :key="index" class="weui-form-preview">
       <div class="weui-form-preview__hd">
@@ -153,7 +156,6 @@ export default {
     background: #eee;
   }
   .record .total{
-    margin-bottom: 10px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
@@ -161,7 +163,7 @@ export default {
   .record .total .panel{
     color: #fff;
     font-weight: bold;
-    padding: 15px;
+    padding: 15px 15px 10px;
   }
   .bg-green{
     background: #78ba00;
@@ -202,12 +204,15 @@ export default {
     color: #fa5151;
   }
   .tips{
-    padding: 0 10px 10px;
+    padding: 10px;
     color: #999;
     font-size: 12px;
   }
   .btn-box{
     background: #fff;
     padding: 10px;
+  }
+  .adContainer{
+    width: 100%;
   }
 </style>
