@@ -1,6 +1,6 @@
-# my-occ
+# 油耗记录助手
 
-> A Mpvue project
+> 搜索微信小程序‘油耗记录助手’
 
 ## Build Setup
 
